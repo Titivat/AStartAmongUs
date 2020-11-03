@@ -27,5 +27,7 @@ P is the list of actions that robot made
 Actions that robot can to:
 goto(X), chart_course, fix_wiring, clean_filter, start_reactor, reboot_wifi
 
+X is the variable for room name. Possible rooms: cafeteria, weapons, navigation, o2, admin, shields, communications, storage , admin, electrical, medbay, lowerengine, upperengine, reactor, security, northeasthallway, easthallway, southeasthallway, centerhallway, southwesthallway, westhallway, northwesthallway. 
+
 
 
