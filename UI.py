@@ -15,20 +15,27 @@ bg_surface = pygame.transform.scale(bg_surface, (WIDTH, HEIGHT))
 player = pygame.image.load('./image/charlecter.png')
 player = pygame.transform.scale(player, ( 50, 50))
 
-spots = {'Cafereria':(400, 50) ,
-         'Weapons':( 565, 57),
-         'O2': ( 520, 190),
-         'Navigation':(690, 210),
-         'Shields':(550, 380),
-         'Communication': (480, 450),
-         'Storage':(380, 365),         
-         'Admin':( 490, 280),
-         'Electrical':( 270, 330),
-         'LowerEngine':(110, 350),
-         'Reactor':(57, 220),
-         'Security':( 185, 225),
-         'UppderEngine':(115, 85),
-         'Medbay':(260, 170)}
+spots = {'cafereria':(400, 50) ,
+         'northeasthallway':(510 , 110),
+         'weapons':( 565, 57),
+         'o2': ( 520, 190),
+         'navigation':(690, 210),
+         'easthallway':(590, 280),
+         'shields':(550, 380),
+         'communication': (480, 450),
+         'southeasthallway':(450, 400),
+         'storage':(380, 365),
+         'centerhallway':(400, 310),
+         'admin':( 490, 280),
+         'electrical':( 270, 330),
+         'southwesthallway':(250, 460),
+         'lowerengine':(110, 350),
+         'westhallway':(120, 260),
+         'reactor':(57, 220),
+         'security':( 180, 225),
+         'uppderengine':(115, 85),
+         'northwesthallway':(250, 120),
+         'medbay':(260, 170)}
 
 spotLis = []
 for i in spots:
@@ -51,7 +58,7 @@ while True:
         
     screen.blit(bg_surface, (0,0))
     
-    screen.blit(player, spotLis[ count ] )
+    screen.blit(player, spots[ "northwesthallway" ] )
 
     count += 1
     pygame.display.update()
