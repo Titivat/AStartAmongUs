@@ -38,10 +38,23 @@ spots = {'cafereria':(400, 50) ,
          'medbay':(260, 170)}
 
 spotLis = []
-for i in spots:
-    spotLis.append( spots[i] )
+##for i in spots:
+##    spotLis.append( spots[i] )
 
 count = 0
+getInput = True
+
+def inputTask( spotLis ):
+    for i in range( 3 ):
+        userInput = input("input place you want to go: ")
+        spotLis.append( spots[userInput] )
+        
+    return spotLis, False
+
+def delay():
+    for i in range(100000000):
+        pass
+    
 while True:
 
     for event in pygame.event.get():
@@ -52,14 +65,24 @@ while True:
         if event.type == pygame.MOUSEBUTTONUP:
             pos = pygame.mouse.get_pos()
             print( pos )
-
-    if count == len(spotLis):
-        count = 0
-        
+            
     screen.blit(bg_surface, (0,0))
     
-    screen.blit(player, spots[ "northwesthallway" ] )
-
+    if getInput == True:
+        spoList, getInput = inputTask( spotLis )
+        print( spoList ) 
+    
+    if count == len(spotLis):
+        count = 0
+        spotLis = []
+        getInput = True
+        
+        delay()
+    else:
+        screen.blit(player, spotLis[ count ] )
+        
+        delay()
+        
     count += 1
     pygame.display.update()
     clock.tick( 1 )
