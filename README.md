@@ -24,4 +24,8 @@ P = [goto(northeasthallway), goto(weapons), goto(easthallway), goto(o2), clean_f
 S is the list of states that the robot went through
 P is the list of actions that robot made
 
+Actions that robot can to:
+goto(X), chart_course, fix_wiring, clean_filter, start_reactor, reboot_wifi
+
+
 
