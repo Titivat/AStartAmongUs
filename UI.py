@@ -10,6 +10,8 @@ pygame.init()
 WIDTH  = 800  
 HEIGHT = 600
 
+DELAY_TIME = 2
+
 screen = pygame.display.set_mode(( WIDTH, HEIGHT))
 clock  = pygame.time.Clock()
 
@@ -140,14 +142,19 @@ def inputEvent():
             pos = pygame.mouse.get_pos()
             print( pos )
 
-def clearTaskSpkies( taksSpikes ):
+def clearTaskSpikes( taksSpikes ):
     for taksSpike in taksSpikes:
         taksSpike.setPosition( (-50, -50) )
-
+###########################################################################################################################################
 #add player
 all_sprites = pygame.sprite.Group()
 player = Player( playerImg )
 all_sprites.add( player )
+
+#taskVideo
+taskVideo = Player()
+taskVideo.setPosition( ( -50, -50) )
+all_sprites.add( taskVideo )
 
 #add task
 for i in range( 5 ):    
@@ -185,35 +192,41 @@ while True:
 
     #finsh all tasks
     elif listIndex == len(moveList):
+        taskVideo.setPosition( (-50, -50) )
+
         spotLis = []
         listIndex = 0
 
         getInput = True
 
         #rest position 
-        clearTaskSpkies( taksSpikes )
+        clearTaskSpikes( taksSpikes )
         player.setPosition( spots[ 'cafereria' ] )
         
-        delay( 3 )
+        delay( DELAY_TIME )
 
     #move player
     else:
+        taskVideo.setPosition( (-50, -50) )
+
         player.setPosition( moveList[ listIndex ] )
         playerPosition = player.getPosition()
-        
-        listIndex += 1
-        all_sprites.update()
 
+        listIndex += 1
+
+        #player at task
         if playerPosition in taskPosition:
             taskIndex = taskPosition.index( playerPosition )
             taskPosition.pop( taskIndex )
             
-            clearTaskSpkies( taksSpikes )
+            clearTaskSpikes( taksSpikes )
 
             for task in range( len(taskPosition) ):
                 taksSpikes[ task ].setPosition( taskPosition[task] )
 
-        delay( 3 )
+            taskVideo.setPosition( (50, 50) )
+            
+        delay( DELAY_TIME )
 
     all_sprites.update()
     
