@@ -174,6 +174,11 @@ while True:
         spotLis = []
         listIndex = 0
         getInput = True
+
+        for taksSpike in taksSpikes:
+            taksSpike.setPosition( (-50, -50) )
+        
+        player.setPosition( spots[ 'cafereria' ] )
         
         delay( 3 )
     #move player
