@@ -57,7 +57,15 @@ class Player( pygame.sprite.Sprite):
         self.image = pygame.Surface((50,50))
         self.image.fill( (0, 255, 0) )
         self.rect = self.image.get_rect()
-        self.rect.center = ( int(WIDTH / 2), int(HEIGHT / 2))
+        self.rect.center = ( spots['cafereria'])
+        self.position = spots['cafereria']
+
+    def update( self ):
+        self.rect.x = self.position[0]
+        self.rect.y = self.position[1]
+
+    def setPosition( self, position ):
+        self.position = position
 
 def displayTask():
     print('0: Clean o2 filter')
@@ -116,12 +124,10 @@ listIndex = 0
 getInput = True
 while True:
     inputEvent()
-            
     
-
     #input task
     if getInput == True:
-        screen.blit(player, spots[ 'cafereria' ] )
+        player1.setPosition( spots[ 'cafereria' ] )
         moveList = getPath()
         getInput = False
          
@@ -134,7 +140,7 @@ while True:
         delay( 3 )
     #move player
     else:
-        #screen.blit(player, moveList[ listIndex ] )
+        player1.setPosition( moveList[ listIndex ] )
         delay( 5 )
         
     all_sprites.update()
