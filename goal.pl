@@ -1,5 +1,11 @@
-goal(location(robbie,shields)).
-goal(clean(filter, true)).
+% Define goal module
+:- module(goal, [goal/1, goal_situation/1, reached_goal/2]).
+
+% Make goal procedure dynamic
+:- dynamic goal/1.
+
+%goal(location(robbie,shields)).
+%goal(clean(filter, true)).
 %goal(door(garage-car, locked)).
 %goal(door(kitchen-garage, locked)).
 % Everything must be tidied away

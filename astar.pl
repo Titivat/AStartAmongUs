@@ -1,4 +1,11 @@
+% Define a* module
+:- module(astar, [a_star/2]).
+
 :- use_module(library(heaps)).
+
+% Load world and goal module
+:- use_module(world).
+:- use_module(goal).
 
 % Use to order search
 heuristic_distance_to_goal(GoalSituation, Situation, Distance) :-

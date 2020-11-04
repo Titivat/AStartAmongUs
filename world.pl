@@ -1,3 +1,6 @@
+% Define world module
+:- module(world, [fluent/1, fact/1, s0/1, poss/2, result/3]).
+
 fluent(location(robbie, cafeteria)).
 fluent(door(cafeteria-northwesthallway, unlocked)).
 fluent(door(cafeteria-northeasthallway, unlocked)).
