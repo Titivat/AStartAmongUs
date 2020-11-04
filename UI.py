@@ -1,5 +1,9 @@
 from time import sleep
 import pygame, sys
+from pyswip import Prolog, Atom, Functor
+
+prolog = Prolog()
+prolog.consult("planning")
 
 pygame.init()
 
@@ -22,7 +26,7 @@ spots = {'cafereria':(400, 50) ,
          'navigation':(690, 210),
          'easthallway':(590, 280),
          'shields':(550, 380),
-         'communication': (480, 450),
+         'communications': (480, 450),
          'southeasthallway':(450, 400),
          'storage':(380, 365),
          'centerhallway':(400, 310),
@@ -33,21 +37,21 @@ spots = {'cafereria':(400, 50) ,
          'westhallway':(120, 260),
          'reactor':(57, 220),
          'security':( 180, 225),
-         'uppderengine':(115, 85),
+         'upperengine':(115, 85),
          'northwesthallway':(250, 120),
          'medbay':(260, 170)}
 
-queryTasks = ['goal(clean(filter,true)).',
-         'goal(chart(course,true)).',
-         'goal(fix(wiring,true)).',
-         'goal(start(reactor,true)).',
-         'goal(reboot(wifi,true)).']
+queryTasks = ['goal(clean(filter,true))',
+         'goal(chart(course,true))',
+         'goal(fix(wiring,true))',
+         'goal(start(reactor,true))',
+         'goal(reboot(wifi,true))']
 
-missionRooms = { 'goal(clean(filter,true)).':'o2',
-                 'goal(chart(course,true)).':'navigation',
-                 'goal(fix(wiring,true)).':'electrical',
-                 'goal(start(reactor,true)).':'reactor',
-                 'goal(reboot(wifi,true)).':'communication'}
+missionRooms = { 'goal(clean(filter,true))':'o2',
+                 'goal(chart(course,true))':'navigation',
+                 'goal(fix(wiring,true))':'electrical',
+                 'goal(start(reactor,true))':'reactor',
+                 'goal(reboot(wifi,true))':'communications'}
 
 taks = []
 
@@ -82,8 +86,18 @@ def displayTask():
 
 def getMoveList( queryList ):
     movePath = []
-    for path in spots:
-        movePath.append( spots[path] )
+    #for path in spots:
+    #    movePath.append( spots[path] )
+    for soln in prolog.query("a_star(_,P)"):
+        for p in soln["P"]:
+            if not isinstance(p, Functor):
+                print("task", p)
+                continue
+            for args in p.args:
+                args = str(args)
+                print("goto", args)
+                movePath.append(spots[args])
+        break
         
     return movePath
 
@@ -99,6 +113,7 @@ def getPath():
             inputing = False 
         else:
             taks.append( queryTasks[userInput] )
+            prolog.assertz(queryTasks[userInput])
 
     print("=========end input task=========")
     print( taks )
@@ -106,7 +121,7 @@ def getPath():
     return getMoveList( queryTasks )
 
 def delay( delayTime ):
-    for i in range( delayTime * 10000000 ):
+    for _ in range( delayTime * 10000000 ):
         pass
 
 def inputEvent():
@@ -142,6 +157,8 @@ while True:
     
     #input task
     if getInput == True:
+        for task in taks: prolog.retract(task)
+        taks = []
         player.setPosition( spots[ 'cafereria' ] )
         moveList = getPath()
         getInput = False
