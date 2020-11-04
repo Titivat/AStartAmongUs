@@ -115,7 +115,6 @@ def getPath( taks ):
         displayTask()
         
         userInput = int( input("\ninput place you want to go: ") )
-        print( userInput )
         if userInput >= 5:
             inputing = False 
         else:
@@ -141,7 +140,7 @@ def inputEvent():
             pos = pygame.mouse.get_pos()
             print( pos )
 
-def clearTask( taksSpikes ):
+def clearTaskSpkies( taksSpikes ):
     for taksSpike in taksSpikes:
         taksSpike.setPosition( (-50, -50) )
 
@@ -192,22 +191,30 @@ while True:
         getInput = True
 
         #rest position 
-        clearTask( taksSpikes )
+        clearTaskSpkies( taksSpikes )
         player.setPosition( spots[ 'cafereria' ] )
         
         delay( 3 )
 
     #move player
     else:
+        player.setPosition( moveList[ listIndex ] )
         playerPosition = player.getPosition()
+        
+        listIndex += 1
+        all_sprites.update()
 
         if playerPosition in taskPosition:
-            print('I am here')
+            taskIndex = taskPosition.index( playerPosition )
+            taskPosition.pop( taskIndex )
             
-        player.setPosition( moveList[ listIndex ] )
-        listIndex += 1
+            clearTaskSpkies( taksSpikes )
+
+            for task in range( len(taskPosition) ):
+                taksSpikes[ task ].setPosition( taskPosition[task] )
+
         delay( 3 )
-        
+
     all_sprites.update()
     
     screen.blit(bg_surface, (0,0))
