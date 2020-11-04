@@ -37,26 +37,67 @@ spots = {'cafereria':(400, 50) ,
          'northwesthallway':(250, 120),
          'medbay':(260, 170)}
 
-spotLis = []
-##for i in spots:
-##    spotLis.append( spots[i] )
+queryTasks = ['goal(clean(filter,true)).',
+         'goal(chart(course,true)).',
+         'goal(fix(wiring,true)).',
+         'goal(start(reactor,true)).',
+         'goal(reboot(wifi,true)).']
 
-count = 0
-getInput = True
+missionRooms = { 'goal(clean(filter,true)).':'o2',
+                 'goal(clean(filter,true)).':'navigation',
+                 'goal(fix(wiring,true)).':'electrical',
+                 'goal(start(reactor,true)).':'reactor',
+                 'goal(reboot(wifi,true)).':'communication'}
 
-def inputTask( spotLis ):
-    for i in range( 3 ):
-        userInput = input("input place you want to go: ")
-        spotLis.append( spots[userInput] )
+taks = []
+
+class Player( pygame.sprite.Sprite):
+    def __init__( self ):
+        pygame.sprite.Sprite.__init__( self )
+        self.image = pygame.Surface((50,50))
+        self.image.fill( (0, 255, 0) )
+        self.rect = self.image.get_rect()
+        self.rect.center = ( int(WIDTH / 2), int(HEIGHT / 2))
+
+def displayTask():
+    print('0: Clean o2 filter')
+    print('1: Chart course')
+    print('2: Fix wiring')
+    print('3: Start reactor')
+    print('4: Reboot wifi')
+    print('5 or more: exit')
+
+def getMoveList( queryList ):
+    movePath = []
+    for path in spots:
+        movePath.append( spots[path] )
         
-    return spotLis, False
+    return movePath
 
-def delay():
-    for i in range(100000000):
-        pass
+def getPath():
+    inputing = True
+    taks = []
+    print("=========input task=========") 
+    while inputing:
+        displayTask()
+        
+        userInput = int( input("input place you want to go: ") )
+
+        if userInput >= 5:
+            inputing = False 
+        else:
+            taks.append( queryTasks[userInput] )
+
+    print("=========end input task=========")
+    print( taks )
     
-while True:
+    return getMoveList( queryTasks )
 
+def delay( delayTime ):
+    for i in range( delayTime * 10000000 ):
+        pass
+
+def inputEvent():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -65,24 +106,42 @@ while True:
         if event.type == pygame.MOUSEBUTTONUP:
             pos = pygame.mouse.get_pos()
             print( pos )
+
+all_sprites = pygame.sprite.Group()
+player1 = Player()
+all_sprites.add( player1 )
+
+moveList = []
+listIndex = 0
+getInput = True
+while True:
+    inputEvent()
             
-    screen.blit(bg_surface, (0,0))
     
+
+    #input task
     if getInput == True:
-        spoList, getInput = inputTask( spotLis )
-        print( spoList ) 
-    
-    if count == len(spotLis):
-        count = 0
+        screen.blit(player, spots[ 'cafereria' ] )
+        moveList = getPath()
+        getInput = False
+         
+    #finsh all tasks
+    elif listIndex == len(moveList):
         spotLis = []
+        listIndex = 0
         getInput = True
         
-        delay()
+        delay( 3 )
+    #move player
     else:
-        screen.blit(player, spotLis[ count ] )
+        #screen.blit(player, moveList[ listIndex ] )
+        delay( 5 )
         
-        delay()
-        
-    count += 1
+    all_sprites.update()
+    
+    screen.blit(bg_surface, (0,0))
+    all_sprites.draw( screen )
+    
     pygame.display.update()
+    listIndex += 1
     clock.tick( 1 )
