@@ -4,13 +4,13 @@
 % Make goal procedure dynamic
 :- dynamic goal/1.
 
-%goal(location(robbie,shields)).
-%goal(clean(filter, true)).
-%goal(door(garage-car, locked)).
-%goal(door(kitchen-garage, locked)).
-% Everything must be tidied away
-%goal(location(X, L)) :- fact(home(X, L)).
-%%goal(clean(car, true)).
+%possible goals
+goal(clean(filter,true)). 
+%goal(chart(course,true)). 
+%goal(fix(wiring,true)). 
+%goal(start(reactor,true)). 
+%goal(reboot(wifi,true)).
+
 goal(holding(nothing)).
 
 % The Goal Situation is the (ordered) set of fluents that
