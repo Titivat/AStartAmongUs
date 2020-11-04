@@ -55,6 +55,8 @@ missionRooms = { 'goal(clean(filter,true))':'o2',
 
 taks = []
 
+taksSpikes = []
+
 class Player( pygame.sprite.Sprite):
     def __init__( self , image = None):
         pygame.sprite.Sprite.__init__( self )
@@ -75,7 +77,10 @@ class Player( pygame.sprite.Sprite):
 
     def setPosition( self, position ):
         self.position = position
-        
+    
+    def getPosition( self ):
+        return self.position
+
 def displayTask():
     print('0: Clean o2 filter')
     print('1: Chart course')
@@ -91,24 +96,26 @@ def getMoveList( queryList ):
     for soln in prolog.query("a_star(_,P)"):
         for p in soln["P"]:
             if not isinstance(p, Functor):
-                print("task", p)
+                #print("task", p)
                 continue
             for args in p.args:
                 args = str(args)
-                print("goto", args)
+                #print("goto", args)
                 movePath.append(spots[args])
         break
-        
+    print( movePath )
+
     return movePath
 
-def getPath():
+def getPath( taks ):
     inputing = True
+
     print("=========input task=========") 
     while inputing:
         displayTask()
         
-        userInput = int( input("input place you want to go: ") )
-
+        userInput = int( input("\ninput place you want to go: ") )
+        print( userInput )
         if userInput >= 5:
             inputing = False 
         else:
@@ -134,12 +141,15 @@ def inputEvent():
             pos = pygame.mouse.get_pos()
             print( pos )
 
+def clearTask( taksSpikes ):
+    for taksSpike in taksSpikes:
+        taksSpike.setPosition( (-50, -50) )
+
 #add player
 all_sprites = pygame.sprite.Group()
 player = Player( playerImg )
 all_sprites.add( player )
 
-taksSpikes = []
 #add task
 for i in range( 5 ):    
     task = Player()
@@ -149,6 +159,7 @@ for i in range( 5 ):
     
 #init change var
 moveList = []
+taskPosition = []
 listIndex = 0
 getInput = True
 
@@ -158,34 +169,44 @@ while True:
     #input task
     if getInput == True:
         for task in taks: prolog.retract(task)
+        
         taks = []
+
         player.setPosition( spots[ 'cafereria' ] )
-        moveList = getPath()
+        moveList = getPath( taks )
         getInput = False
         
+        #setPoition for task
         for task in range( len( taks ) ):
             taskPoistion =  taks[ task ] 
             missionName = missionRooms[ taskPoistion ]
-            
+
             taksSpikes[ task ].setPosition( spots[missionName] )
-         
+            taskPosition.append( spots[missionName] )
+
     #finsh all tasks
     elif listIndex == len(moveList):
         spotLis = []
         listIndex = 0
+
         getInput = True
 
-        for taksSpike in taksSpikes:
-            taksSpike.setPosition( (-50, -50) )
-        
+        #rest position 
+        clearTask( taksSpikes )
         player.setPosition( spots[ 'cafereria' ] )
         
         delay( 3 )
+
     #move player
     else:
+        playerPosition = player.getPosition()
+
+        if playerPosition in taskPosition:
+            print('I am here')
+            
         player.setPosition( moveList[ listIndex ] )
         listIndex += 1
-        delay( 5 )
+        delay( 3 )
         
     all_sprites.update()
     
