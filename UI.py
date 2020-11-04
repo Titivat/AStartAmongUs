@@ -12,8 +12,8 @@ clock  = pygame.time.Clock()
 bg_surface = pygame.image.load('./image/background.PNG')
 bg_surface = pygame.transform.scale(bg_surface, (WIDTH, HEIGHT))
 
-player = pygame.image.load('./image/charlecter.png')
-player = pygame.transform.scale(player, ( 50, 50))
+playerImg = pygame.image.load('./image/charlecter.png')
+playerImg = pygame.transform.scale(playerImg, ( 50, 50))
 
 spots = {'cafereria':(400, 50) ,
          'northeasthallway':(510 , 110),
@@ -44,7 +44,7 @@ queryTasks = ['goal(clean(filter,true)).',
          'goal(reboot(wifi,true)).']
 
 missionRooms = { 'goal(clean(filter,true)).':'o2',
-                 'goal(clean(filter,true)).':'navigation',
+                 'goal(chart(course,true)).':'navigation',
                  'goal(fix(wiring,true)).':'electrical',
                  'goal(start(reactor,true)).':'reactor',
                  'goal(reboot(wifi,true)).':'communication'}
@@ -52,10 +52,15 @@ missionRooms = { 'goal(clean(filter,true)).':'o2',
 taks = []
 
 class Player( pygame.sprite.Sprite):
-    def __init__( self ):
+    def __init__( self , image = None):
         pygame.sprite.Sprite.__init__( self )
-        self.image = pygame.Surface((50,50))
-        self.image.fill( (0, 255, 0) )
+
+        if image == None:
+            self.image = pygame.Surface((50,50))
+            self.image.fill( (0, 255, 0) )
+        else:
+            self.image = image
+            
         self.rect = self.image.get_rect()
         self.rect.center = ( spots['cafereria'])
         self.position = spots['cafereria']
@@ -66,7 +71,7 @@ class Player( pygame.sprite.Sprite):
 
     def setPosition( self, position ):
         self.position = position
-
+        
 def displayTask():
     print('0: Clean o2 filter')
     print('1: Chart course')
@@ -84,7 +89,6 @@ def getMoveList( queryList ):
 
 def getPath():
     inputing = True
-    taks = []
     print("=========input task=========") 
     while inputing:
         displayTask()
@@ -115,21 +119,38 @@ def inputEvent():
             pos = pygame.mouse.get_pos()
             print( pos )
 
+#add player
 all_sprites = pygame.sprite.Group()
-player1 = Player()
-all_sprites.add( player1 )
+player = Player( playerImg )
+all_sprites.add( player )
 
+taksSpikes = []
+#add task
+for i in range( 5 ):    
+    task = Player()
+    taksSpikes.append( task )
+    task.setPosition( (-50, -50) )
+    all_sprites.add( task )
+    
+#init change var
 moveList = []
 listIndex = 0
 getInput = True
+
 while True:
     inputEvent()
     
     #input task
     if getInput == True:
-        player1.setPosition( spots[ 'cafereria' ] )
+        player.setPosition( spots[ 'cafereria' ] )
         moveList = getPath()
         getInput = False
+        
+        for task in range( len( taks ) ):
+            taskPoistion =  taks[ task ] 
+            missionName = missionRooms[ taskPoistion ]
+            
+            taksSpikes[ task ].setPosition( spots[missionName] )
          
     #finsh all tasks
     elif listIndex == len(moveList):
@@ -140,7 +161,8 @@ while True:
         delay( 3 )
     #move player
     else:
-        player1.setPosition( moveList[ listIndex ] )
+        player.setPosition( moveList[ listIndex ] )
+        
         delay( 5 )
         
     all_sprites.update()
