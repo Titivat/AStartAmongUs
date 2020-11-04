@@ -179,7 +179,7 @@ while True:
     #move player
     else:
         player.setPosition( moveList[ listIndex ] )
-        
+        listIndex += 1
         delay( 5 )
         
     all_sprites.update()
@@ -188,5 +188,5 @@ while True:
     all_sprites.draw( screen )
     
     pygame.display.update()
-    listIndex += 1
+   
     clock.tick( 1 )
