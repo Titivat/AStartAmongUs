@@ -12,6 +12,9 @@ HEIGHT = 600
 
 DELAY_TIME = 2
 
+VIDEO_POSITION = ( 300, 212)
+VIDEO_SIZE = ( 200, 200)
+
 screen = pygame.display.set_mode(( WIDTH, HEIGHT))
 clock  = pygame.time.Clock()
 
@@ -20,6 +23,13 @@ bg_surface = pygame.transform.scale(bg_surface, (WIDTH, HEIGHT))
 
 playerImg = pygame.image.load('./image/charlecter.png')
 playerImg = pygame.transform.scale(playerImg, ( 50, 50))
+
+fixingLightImgs = []
+for item in range( 1, 65):
+    path = (f'./video/fixingLight/fixLight ({ item }).tif')
+    fixLightImg = pygame.image.load( path )
+    fixLightImg = pygame.transform.scale( fixLightImg , VIDEO_SIZE )
+    fixingLightImgs.append( fixLightImg )
 
 spots = {'cafereria':(400, 50) ,
          'northeasthallway':(510 , 110),
@@ -59,12 +69,15 @@ taks = []
 
 taksSpikes = []
 
-class Player( pygame.sprite.Sprite):
+class Player( pygame.sprite.Sprite ):
     def __init__( self , image = None):
         pygame.sprite.Sprite.__init__( self )
 
+        self.width = 50
+        self.height = 50
+
         if image == None:
-            self.image = pygame.Surface((50,50))
+            self.image = pygame.Surface(  ( self.width, self.height ))
             self.image.fill( (0, 255, 0) )
         else:
             self.image = image
@@ -72,6 +85,15 @@ class Player( pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = ( spots['cafereria'])
         self.position = spots['cafereria']
+
+    def setWidth( self , width ):
+        self.width = width
+
+    def setHeight( self , height ):
+        self.height = height
+
+    def setImage( self ):
+        self.image = pygame.Surface(  ( self.width, self.height ))
 
     def update( self ):
         self.rect.x = self.position[0]
@@ -82,6 +104,24 @@ class Player( pygame.sprite.Sprite):
     
     def getPosition( self ):
         return self.position
+
+class TaskVideo():
+    def __init__( self ):
+        self.DELAY_TIME = 100000
+        self.images = []
+    
+    def displayImage( self ):
+        for image in self.images:
+            screen.blit( image , VIDEO_POSITION ) 
+            pygame.display.update()
+            self.delay()
+
+    def delay( self ):
+        for _ in range( self.DELAY_TIME ):
+            pass
+
+    def setImages( self, images ):
+        self.images = images 
 
 def displayTask():
     print('0: Clean o2 filter')
@@ -105,7 +145,6 @@ def getMoveList( queryList ):
                 #print("goto", args)
                 movePath.append(spots[args])
         break
-    print( movePath )
 
     return movePath
 
@@ -116,7 +155,7 @@ def getPath( taks ):
     while inputing:
         displayTask()
         
-        userInput = int( input("\ninput place you want to go: ") )
+        userInput = int( input("\ninput place you task: ") )
         if userInput >= 5:
             inputing = False 
         else:
@@ -124,8 +163,7 @@ def getPath( taks ):
             prolog.assertz(queryTasks[userInput])
 
     print("=========end input task=========")
-    print( taks )
-    
+
     return getMoveList( queryTasks )
 
 def delay( delayTime ):
@@ -145,6 +183,17 @@ def inputEvent():
 def clearTaskSpikes( taksSpikes ):
     for taksSpike in taksSpikes:
         taksSpike.setPosition( (-50, -50) )
+
+def displayVideo( previousePlayerPosition, taskPosition, taksSpikes, taskVideo ):
+    taskIndex = taskPosition.index( previousePlayerPosition )
+    taskPosition.pop( taskIndex )
+    clearTaskSpikes( taksSpikes )
+
+    for task in range( len(taskPosition) ):
+        taksSpikes[ task ].setPosition( taskPosition[task] )
+
+    taskVideo.displayImage()
+
 ###########################################################################################################################################
 #add player
 all_sprites = pygame.sprite.Group()
@@ -152,9 +201,8 @@ player = Player( playerImg )
 all_sprites.add( player )
 
 #taskVideo
-taskVideo = Player()
-taskVideo.setPosition( ( -50, -50) )
-all_sprites.add( taskVideo )
+taskVideo = TaskVideo()
+taskVideo.setImages( fixingLightImgs )
 
 #add task
 for i in range( 5 ):    
@@ -167,6 +215,8 @@ for i in range( 5 ):
 moveList = []
 taskPosition = []
 listIndex = 0
+previousePlayerPosition = 0
+displayVideoFlag = False
 getInput = True
 
 while True:
@@ -192,11 +242,12 @@ while True:
 
     #finsh all tasks
     elif listIndex == len(moveList):
-        taskVideo.setPosition( (-50, -50) )
-
+        displayVideo( previousePlayerPosition, taskPosition, taksSpikes, taskVideo )
+        
+        #reset var
         spotLis = []
         listIndex = 0
-
+        displayVideoFlag = False
         getInput = True
 
         #rest position 
@@ -207,25 +258,23 @@ while True:
 
     #move player
     else:
-        taskVideo.setPosition( (-50, -50) )
-
         player.setPosition( moveList[ listIndex ] )
         playerPosition = player.getPosition()
 
-        listIndex += 1
-
         #player at task
         if playerPosition in taskPosition:
-            taskIndex = taskPosition.index( playerPosition )
-            taskPosition.pop( taskIndex )
-            
-            clearTaskSpikes( taksSpikes )
+            previousePlayerPosition = playerPosition
+            displayVideoFlag = True
 
-            for task in range( len(taskPosition) ):
-                taksSpikes[ task ].setPosition( taskPosition[task] )
+        elif( displayVideoFlag == True):
+            displayVideo( previousePlayerPosition, taskPosition, taksSpikes, taskVideo )
+            displayVideoFlag = False
 
-            taskVideo.setPosition( (50, 50) )
-            
+        for task in range( len(taskPosition) ):
+            taksSpikes[ task ].setPosition( taskPosition[task] )
+        
+        listIndex += 1
+
         delay( DELAY_TIME )
 
     all_sprites.update()
