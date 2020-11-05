@@ -13,7 +13,7 @@ HEIGHT = 600
 DELAY_TIME = 2
 
 VIDEO_POSITION = ( 300, 212)
-VIDEO_SIZE = ( 200, 200)
+VIDEO_SIZE = ( 300, 200)
 
 screen = pygame.display.set_mode(( WIDTH, HEIGHT))
 clock  = pygame.time.Clock()
@@ -43,15 +43,15 @@ loadImage( fixingLightImgs, './video/fixingLight/fixLight', IMAGE_FILE_LENGTH)
 
 navigationImgs = []
 IMAGE_FILE_LENGTH = 118
-loadImage( cleanO2Imgs, './video/navigation/navigation', IMAGE_FILE_LENGTH)
+loadImage( navigationImgs, './video/navigation/navigation', IMAGE_FILE_LENGTH)
 
-reactor = []
+reactorImages = []
 IMAGE_FILE_LENGTH = 429
-loadImage( cleanO2Imgs, './video/reactor/reactor', IMAGE_FILE_LENGTH)
+loadImage( reactorImages, './video/reactor/reactor', IMAGE_FILE_LENGTH)
 
-rebootWifi = []
+rebootWifiImages = []
 IMAGE_FILE_LENGTH = 235
-loadImage( cleanO2Imgs, './video/rebootWifi/rebootWifi', IMAGE_FILE_LENGTH)
+loadImage( rebootWifiImages, './video/rebootWifi/rebootWifi', IMAGE_FILE_LENGTH)
 
 spots = {'cafereria':(400, 50) ,
          'northeasthallway':(510 , 110),
@@ -74,6 +74,14 @@ spots = {'cafereria':(400, 50) ,
          'upperengine':(115, 85),
          'northwesthallway':(250, 120),
          'medbay':(260, 170)}
+
+taskVideos = {
+    spots['o2'] : cleanO2Imgs,
+    spots['electrical'] : fixingLightImgs,
+    spots['navigation'] : navigationImgs,
+    spots['reactor'] : reactorImages,
+    spots['communications'] : rebootWifiImages
+}
 
 queryTasks = ['goal(clean(filter,true))',
          'goal(chart(course,true))',
@@ -214,6 +222,7 @@ def displayVideo( previousePlayerPosition, taskPosition, taksSpikes, taskVideo )
     for task in range( len(taskPosition) ):
         taksSpikes[ task ].setPosition( taskPosition[task] )
 
+    taskVideo.setImages( taskVideos[ previousePlayerPosition ] )
     taskVideo.displayImage()
 
 ###########################################################################################################################################
@@ -224,7 +233,6 @@ all_sprites.add( player )
 
 #taskVideo
 taskVideo = TaskVideo()
-taskVideo.setImages( fixingLightImgs )
 
 #add task
 for i in range( 5 ):    
