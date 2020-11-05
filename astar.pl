@@ -8,16 +8,24 @@
 :- use_module(goal).
 
 % Use to order search
+% ord_subtract(+InOSet, +NotInOSet, -Diff)
+% Diff is the set holding all elements of InOSet that are not in NotInOSet.
+% Goal - Sit = h(n)
+% length(?List, ?Int)
+% True if Int represents the number of elements i List
 heuristic_distance_to_goal(GoalSituation, Situation, Distance) :-
     ord_subtract(GoalSituation, Situation, Dif),
     length(Dif, Distance).
 
 % Add a Cost-Sit-Process triple to the search heap
 % of open nodes. Carrying Process for interest.
+% succ(?Int1, ?Int2)
+% True if Int2 = Int1 + 1 and Int1 >= 0
 add_to_open_nodes(AccCost, H1, Sit-Process, Goal, H2) :-
-    heuristic_distance_to_goal(Goal, Sit, D),
-    succ(AccCost, ActCost), % one action has been taken, so incr
-    Priority is ActCost + D, % Priority cost
+    heuristic_distance_to_goal(Goal, Sit, D), % h = distance to goal
+    succ(AccCost, ActCost), % one action has been taken, so increment, g = prev+1 
+    Priority is ActCost + D, % Priority cost (f= g+h)
+    %format("Process: ~w~nPriority: ~w~nActCost: ~w~nDistance: ~w~n~n", [Process,Priority, ActCost, D]),
     add_to_heap(H1, Priority, ActCost-Sit-Process, H2).
 
 % Add a list of Sit-Process Pairs

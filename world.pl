@@ -1,7 +1,12 @@
 % Define world module
-:- module(world, [fluent/1, fact/1, s0/1, poss/2, result/3]).
+:- module(world, [fluent/1, s0/1, poss/2, result/3]).
 
-fluent(location(robbie, cafeteria)).
+%fluent are things that change value between states 
+
+%initial location of robot
+fluent(location(bluedude, cafeteria)).
+
+%represent map as vertices
 fluent(door(cafeteria-northwesthallway, unlocked)).
 fluent(door(cafeteria-northeasthallway, unlocked)).
 fluent(door(cafeteria-centerhallway, unlocked)).
@@ -33,6 +38,8 @@ fluent(door(westhallway-reactor, unlocked)).
 fluent(door(westhallway-security, unlocked)).
 fluent(door(westhallway-upperengine, unlocked)).
 
+
+%state of the current world where goals are not completed
 fluent(holding(nothing)).
 
 fluent(chart(course, false)).
@@ -40,18 +47,17 @@ fluent(fix(wiring, false)).
 fluent(clean(filter, false)).
 fluent(start(reactor, false)).
 fluent(reboot(wifi, false)).
-%facts, unlike fluents, don't change
-fact(home(car-key, hallway)).
-fact(home(garage-key, hallway)).
-fact(home(vacuum-cleaner, cafeteria)).
+
 
 % s0, the initial situation, is the (ordered) set
 % of fluents
+% setof(+Template, +Goal, -Set)
 s0(Situation) :-
     setof(S, fluent(S), Situation).
 
 % Take a list of Actions and execute them
-execute_process(S1, [], S1). % Nothing to do
+execute_process(S1, [], S1). % base case process is empty
+% execute an action in process one by one
 execute_process(S1, [Action|Process], S2) :-
     poss(Action, S1), % Ensure valid Process
     result(S1, Action, Sd),
@@ -59,7 +65,12 @@ execute_process(S1, [Action|Process], S2) :-
 
 % Does a fluent hold (is true) in the Situation?
 % This is the query mechanism for Situations
+% ord_memberchk(+Element, +OrdSet)
+% True if Element is a member of OrdSet, compared using ==. 
+% Note that enumerating elements of an ordered set can be done using member/2.
 % Use-case 1: check a known fluent
+% ground(@Term)
+% True if Term holds no free variables
 holds(Fluent, Situation) :-
     ground(Fluent), ord_memberchk(Fluent, Situation), !.
 % Use-case 2: search for a fluent
@@ -67,47 +78,31 @@ holds(Fluent, Situation) :-
     member(Fluent, Situation).
 
 % Utility to replace a fluent in the Situation
+% ord_del_element: Delete an element from an ordered set. 
+% This is the same as ord_subtract(Set, [Element], NewSet).
 replace_fluent(S1, OldEl, NewEl, S2) :-
     ord_del_element(S1, OldEl, Sd),
     ord_add_element(Sd, NewEl, S2).
 
-% Lots of actions to declare here...
-% Still less code than writing out the
-% graph we're representing
-%
-% Robbie's Action Repertoire :
+
+% Robot Possible Action List defined as rules :
 %  - goTo(Origin, Destination)
-%  - pickup(Item)
-%  - drop(Item)
-%  - put_away(Item) % the tidy version of drop
+%  - chart_course
+%  - fix_wiring
+%  - clean_filter
+%  - start_reactor
+%  - reboot_wifi
 %  - unlock(Room1-Room2)
 %  - lock(Room1-Room2)
-%  - clean_car
+
 
 poss(goto(L), S) :-
-    % If robbie is in X and the door is unlocked
-    holds(location(robbie, X), S),
+    % If bluedude is in X and the door is unlocked
+    holds(location(bluedude, X), S),
     (   holds(door(X-L, unlocked), S)
     ;   holds(door(L-X, unlocked), S)
     ).
-poss(pickup(X), S) :-
-    % If robbie is in the same place as X and not
-    % holding anything
-    dif(X, robbie), % Can't pickup itself!
-    holds(location(X, L), S),
-    holds(location(robbie, L), S),
-    holds(holding(nothing), S).
-poss(put_away(X), S) :-
-    % If robbie is holding X, it belongs in L
-    % and robbie is in L (location(X, L) is implicit)
-    holds(holding(X), S),
-    fact(home(X, L)),
-    holds(location(robbie, L), S).
-poss(drop(X), S) :-
-    % Can drop something if holding it
-    % Can't drop nothing!
-    dif(X, nothing),
-    holds(holding(X), S).
+
 poss(unlock(R1-R2), S) :-
     % Can unlock door between R1 and R2
     % Door is locked
@@ -115,50 +110,49 @@ poss(unlock(R1-R2), S) :-
     % Holding the key to the room
     holds(holding(R2-key), S),
     % Located in one of the rooms
-    (   holds(location(robbie, R1), S)
-    ;   holds(location(robbie, R2), S)
+    (   holds(location(bluedude, R1), S)
+    ;   holds(location(bluedude, R2), S)
     ).
 poss(lock(R1-R2), S) :-
     % Can lock door R1-R2
-    % Only if it's locked, robbie has the key
+    % Only if it's locked, bluedude has the key
     % and is in one of the rooms
     holds(door(R1-R2, unlocked), S),
     holds(holding(R2-key), S),
-    (   holds(location(robbie, R1), S)
-    ;   holds(location(robbie, R2), S)
+    (   holds(location(bluedude, R1), S)
+    ;   holds(location(bluedude, R2), S)
     ).
-poss(clean_car, S) :-
-    % Robbie is in the car with the vacuum-cleaner
-    holds(location(robbie, navigation), S),
-    holds(holding(vacuum-cleaner), S).
+
 
 poss(chart_course, S) :-
-    % Robbie is in the car with the vacuum-cleaner
-    holds(location(robbie, navigation), S).
+    % must be in correct location in order to complete goal
+    holds(location(bluedude, navigation), S).
 
 poss(fix_wiring, S) :-
-    % Robbie is in the car with the vacuum-cleaner
-    holds(location(robbie, electrical), S).
+    % must be in correct location in order to complete goal
+    holds(location(bluedude, electrical), S).
 
 poss(clean_filter, S) :-
-    % Robbie is in the car with the vacuum-cleaner
-    holds(location(robbie, o2), S).
+    % must be in correct location in order to complete goal
+    holds(location(bluedude, o2), S).
 
 poss(start_reactor, S) :-
-    % Robbie is in the car with the vacuum-cleaner
-    holds(location(robbie, reactor), S).
+    % must be in correct location in order to complete goal
+    holds(location(bluedude, reactor), S).
 
 poss(reboot_wifi, S) :-
-    % Robbie is in the car with the vacuum-cleaner
-    holds(location(robbie, communications), S).
+    % must be in correct location in order to complete goal
+    holds(location(bluedude, communications), S).
 
+
+% Results of performing action listed below
 
 result(S1, goto(L), S2) :-
-    % Robbie moves
-    holds(location(robbie, X), S1),
-    replace_fluent(S1, location(robbie, X),
-                   location(robbie, L), Sa),
-    % If Robbie is carrying something, it moves too
+    % bluedude moves
+    holds(location(bluedude, X), S1),
+    replace_fluent(S1, location(bluedude, X),
+                   location(bluedude, L), Sa),
+    % If bluedude is carrying something, it moves too
     dif(Item, nothing),
     (
         holds(holding(Item), S1),
@@ -167,20 +161,7 @@ result(S1, goto(L), S2) :-
     ;   \+ holds(holding(Item), S1),
         S2 = Sa
     ).
-result(S1, pickup(X), S2) :-
-    % Robbie is holding X
-    replace_fluent(S1, holding(nothing),
-                   holding(X), S2).
-result(S1, drop(X), S2) :-
-    % Robbie is no-longer holding X,
-    % its location is not changed
-    replace_fluent(S1, holding(X),
-                   holding(nothing), S2).
-result(S1, put_away(X), S2) :-
-    % Robbie is no-longer holding X,
-    % its location is not changed
-    replace_fluent(S1, holding(X),
-                   holding(nothing), S2).
+
 result(S1, unlock(R1-R2), S2) :-
     % Door R1-R2 is unlocked
     replace_fluent(S1, door(R1-R2, locked),
@@ -189,33 +170,29 @@ result(S1, lock(R1-R2), S2) :-
     % Door R1-R2 is locked
     replace_fluent(S1, door(R1-R2, unlocked),
                    door(R1-R2, locked), S2).
-result(S1, clean_car, S2) :-
-    % The car is clean
-    replace_fluent(S1, clean(car, false),
-                   clean(car, true), S2).
 
 result(S1, chart_course, S2) :-
-    % The car is clean
+    % state is changed to true
     replace_fluent(S1, chart(course, false),
                    chart(course, true), S2).
 
 result(S1, fix_wiring, S2) :-
-    % The car is clean
+    % state is changed to true
     replace_fluent(S1, fix(wiring, false),
                    fix(wiring, true), S2).
 
 result(S1, clean_filter, S2) :-
-    % The car is clean
+    % state is changed to true
     replace_fluent(S1, clean(filter, false),
                    clean(filter, true), S2).
 
 result(S1, start_reactor, S2) :-
-    % The car is clean
+    % state is changed to true
     replace_fluent(S1, start(reactor, false),
                    start(reactor, true), S2).
 
 result(S1, reboot_wifi, S2) :-
-    % The car is clean
+    % state is changed to true
     replace_fluent(S1, reboot(wifi, false),
                    reboot(wifi, true), S2).
 
