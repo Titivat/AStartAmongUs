@@ -24,12 +24,34 @@ bg_surface = pygame.transform.scale(bg_surface, (WIDTH, HEIGHT))
 playerImg = pygame.image.load('./image/charlecter.png')
 playerImg = pygame.transform.scale(playerImg, ( 50, 50))
 
+def loadImage( inputList, pathLocation, end ):
+    print('loading images...')
+
+    for item in range( 1, end):
+        path = ( pathLocation + f' ({item}).tif')
+        image = pygame.image.load( path )
+        image = pygame.transform.scale( image , VIDEO_SIZE )
+        inputList.append( image )
+
+cleanO2Imgs = []
+IMAGE_FILE_LENGTH = 136
+loadImage( cleanO2Imgs, './video/cleanO2filter/cleanFilter', IMAGE_FILE_LENGTH)
+
 fixingLightImgs = []
-for item in range( 1, 65):
-    path = (f'./video/fixingLight/fixLight ({ item }).tif')
-    fixLightImg = pygame.image.load( path )
-    fixLightImg = pygame.transform.scale( fixLightImg , VIDEO_SIZE )
-    fixingLightImgs.append( fixLightImg )
+IMAGE_FILE_LENGTH = 65
+loadImage( fixingLightImgs, './video/fixingLight/fixLight', IMAGE_FILE_LENGTH)
+
+navigationImgs = []
+IMAGE_FILE_LENGTH = 118
+loadImage( cleanO2Imgs, './video/navigation/navigation', IMAGE_FILE_LENGTH)
+
+reactor = []
+IMAGE_FILE_LENGTH = 429
+loadImage( cleanO2Imgs, './video/reactor/reactor', IMAGE_FILE_LENGTH)
+
+rebootWifi = []
+IMAGE_FILE_LENGTH = 235
+loadImage( cleanO2Imgs, './video/rebootWifi/rebootWifi', IMAGE_FILE_LENGTH)
 
 spots = {'cafereria':(400, 50) ,
          'northeasthallway':(510 , 110),
