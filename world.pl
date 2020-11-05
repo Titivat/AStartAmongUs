@@ -1,10 +1,10 @@
 % Define world module
 :- module(world, [fluent/1, s0/1, poss/2, result/3]).
 
-%fluent are states that can change 
+%fluent are things that change value between states 
 
 %initial location of robot
-fluent(location(robbie, cafeteria)).
+fluent(location(bluedude, cafeteria)).
 
 %represent map as vertices
 fluent(door(cafeteria-northwesthallway, unlocked)).
@@ -51,11 +51,13 @@ fluent(reboot(wifi, false)).
 
 % s0, the initial situation, is the (ordered) set
 % of fluents
+% setof(+Template, +Goal, -Set)
 s0(Situation) :-
     setof(S, fluent(S), Situation).
 
 % Take a list of Actions and execute them
-execute_process(S1, [], S1). % Nothing to do
+execute_process(S1, [], S1). % base case process is empty
+% execute an action in process one by one
 execute_process(S1, [Action|Process], S2) :-
     poss(Action, S1), % Ensure valid Process
     result(S1, Action, Sd),
@@ -63,7 +65,12 @@ execute_process(S1, [Action|Process], S2) :-
 
 % Does a fluent hold (is true) in the Situation?
 % This is the query mechanism for Situations
+% ord_memberchk(+Element, +OrdSet)
+% True if Element is a member of OrdSet, compared using ==. 
+% Note that enumerating elements of an ordered set can be done using member/2.
 % Use-case 1: check a known fluent
+% ground(@Term)
+% True if Term holds no free variables
 holds(Fluent, Situation) :-
     ground(Fluent), ord_memberchk(Fluent, Situation), !.
 % Use-case 2: search for a fluent
@@ -71,12 +78,14 @@ holds(Fluent, Situation) :-
     member(Fluent, Situation).
 
 % Utility to replace a fluent in the Situation
+% ord_del_element: Delete an element from an ordered set. 
+% This is the same as ord_subtract(Set, [Element], NewSet).
 replace_fluent(S1, OldEl, NewEl, S2) :-
     ord_del_element(S1, OldEl, Sd),
     ord_add_element(Sd, NewEl, S2).
 
 
-% Robot Possible Action List :
+% Robot Possible Action List defined as rules :
 %  - goTo(Origin, Destination)
 %  - chart_course
 %  - fix_wiring
@@ -88,8 +97,8 @@ replace_fluent(S1, OldEl, NewEl, S2) :-
 
 
 poss(goto(L), S) :-
-    % If robbie is in X and the door is unlocked
-    holds(location(robbie, X), S),
+    % If bluedude is in X and the door is unlocked
+    holds(location(bluedude, X), S),
     (   holds(door(X-L, unlocked), S)
     ;   holds(door(L-X, unlocked), S)
     ).
@@ -101,49 +110,49 @@ poss(unlock(R1-R2), S) :-
     % Holding the key to the room
     holds(holding(R2-key), S),
     % Located in one of the rooms
-    (   holds(location(robbie, R1), S)
-    ;   holds(location(robbie, R2), S)
+    (   holds(location(bluedude, R1), S)
+    ;   holds(location(bluedude, R2), S)
     ).
 poss(lock(R1-R2), S) :-
     % Can lock door R1-R2
-    % Only if it's locked, robbie has the key
+    % Only if it's locked, bluedude has the key
     % and is in one of the rooms
     holds(door(R1-R2, unlocked), S),
     holds(holding(R2-key), S),
-    (   holds(location(robbie, R1), S)
-    ;   holds(location(robbie, R2), S)
+    (   holds(location(bluedude, R1), S)
+    ;   holds(location(bluedude, R2), S)
     ).
 
 
 poss(chart_course, S) :-
     % must be in correct location in order to complete goal
-    holds(location(robbie, navigation), S).
+    holds(location(bluedude, navigation), S).
 
 poss(fix_wiring, S) :-
     % must be in correct location in order to complete goal
-    holds(location(robbie, electrical), S).
+    holds(location(bluedude, electrical), S).
 
 poss(clean_filter, S) :-
     % must be in correct location in order to complete goal
-    holds(location(robbie, o2), S).
+    holds(location(bluedude, o2), S).
 
 poss(start_reactor, S) :-
     % must be in correct location in order to complete goal
-    holds(location(robbie, reactor), S).
+    holds(location(bluedude, reactor), S).
 
 poss(reboot_wifi, S) :-
     % must be in correct location in order to complete goal
-    holds(location(robbie, communications), S).
+    holds(location(bluedude, communications), S).
 
 
 % Results of performing action listed below
 
 result(S1, goto(L), S2) :-
-    % Robbie moves
-    holds(location(robbie, X), S1),
-    replace_fluent(S1, location(robbie, X),
-                   location(robbie, L), Sa),
-    % If Robbie is carrying something, it moves too
+    % bluedude moves
+    holds(location(bluedude, X), S1),
+    replace_fluent(S1, location(bluedude, X),
+                   location(bluedude, L), Sa),
+    % If bluedude is carrying something, it moves too
     dif(Item, nothing),
     (
         holds(holding(Item), S1),
