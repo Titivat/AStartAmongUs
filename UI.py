@@ -22,7 +22,10 @@ bg_surface = pygame.image.load('./image/background.PNG')
 bg_surface = pygame.transform.scale(bg_surface, (WIDTH, HEIGHT))
 
 playerImg = pygame.image.load('./image/charlecter.png')
-playerImg = pygame.transform.scale(playerImg, ( 50, 50))
+playerImg = pygame.transform.scale( playerImg, ( 50, 50))
+
+taskImg = pygame.image.load('./image/task.png')
+taskImg = pygame.transform.scale(taskImg, ( 50, 50))
 
 def loadImage( inputList, pathLocation, end ):
     print('loading images...')
@@ -236,7 +239,7 @@ taskVideo = TaskVideo()
 
 #add task
 for i in range( 5 ):    
-    task = Player()
+    task = Player( taskImg )
     taksSpikes.append( task )
     task.setPosition( (-50, -50) )
     all_sprites.add( task )
