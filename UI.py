@@ -31,7 +31,7 @@ def loadImage( inputList, pathLocation, end ):
     print('loading images...')
 
     for item in range( 1, end):
-        path = ( pathLocation + f' ({item}).tif')
+        path = ( pathLocation + f' ({item}).jpg')
         image = pygame.image.load( path )
         image = pygame.transform.scale( image , VIDEO_SIZE )
         inputList.append( image )
@@ -188,7 +188,7 @@ def getPath( taks ):
     while inputing:
         displayTask()
         
-        userInput = int( input("\ninput place you task: ") )
+        userInput = int( input("\ninput your task you want to do: ") )
         if userInput >= 5:
             inputing = False 
         else:
@@ -272,7 +272,9 @@ while True:
 
             taksSpikes[ task ].setPosition( spots[missionName] )
             taskPosition.append( spots[missionName] )
-
+            
+        delay( 5 )
+        
     #finsh all tasks
     elif listIndex == len(moveList):
         displayVideo( previousePlayerPosition, taskPosition, taksSpikes, taskVideo )
